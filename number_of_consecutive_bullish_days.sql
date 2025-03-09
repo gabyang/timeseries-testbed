@@ -103,3 +103,7 @@ FROM
 -- notable examples to look out for:
 -- day="1996-01-31" is 3 consecutive bullish days (i.e., stock price increasing)
 -- day="1996-01-08" is 3 consecutive bearish days (i.e., stock price decreasing)
+--
+--  we can use the above query result (let's call it t9) and perform
+-- `INNER JOIN t9.day = xxx_pattern.day`
+-- to find the "number_of_consecutive_bullish_days" for the xxx_candlestick pattern
