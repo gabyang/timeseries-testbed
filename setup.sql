@@ -66,6 +66,16 @@ FROM stock_ticks
 GROUP BY bucket;
 
 
+-- maybe: create continuous aggregate for use in `number_of_consecutive_bullish_days.sql`
+CREATE MATERIALIZED VIEW daily_bullish_status
+WITH (timescaledb.continuous) AS
+SELECT
+    day,
+    close > open AS is_bullish
+FROM
+    daily_ohlc;
+
+
 CREATE TABLE daily_ohlc_op (
     day DATE PRIMARY KEY, -- 4 bytes
     open SMALLINT NOT NULL, -- 2 bytes
