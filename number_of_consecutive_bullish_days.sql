@@ -8,9 +8,9 @@ WITH
             (t0.close > t0.open) AS is_bullish
         FROM
             daily_ohlc t0
-        LIMIT
-            50
-            -- LIMIT 50 for testing purposes only
+        -- LIMIT
+        --     50
+        --     -- LIMIT 50 for testing purposes only
     ),
     daily_ohlc_is_bullish_lagged AS (
         SELECT
@@ -85,25 +85,77 @@ WITH
             ) AS t7
         ORDER BY
             t7.day
+    ),
+    streaks AS (
+    SELECT
+        *,
+        /* possibly more columns such as is_bullish, streak_id, row_number_in_streak, etc. */
+
+        -- "z" is the number of consecutive bullish days that include this day
+        -- "z" is used to avoid text wrapping in the terminal due to long column names
+        GREATEST( (t8.number_of_bullish_days_in_streak - t8.streak_id_row_number) + 1, 0 ) AS z
+    FROM
+        daily_ohlc_recombined t8
     )
-SELECT
-    *,
-    -- use GREATEST with 0 to prevent negative numbers
-    GREATEST (
-        (
-            t8.number_of_bullish_days_in_streak - t8.streak_id_row_number
-        ) + 1,
-        0
-    ) AS z
-    -- the proper name of the column is "number_of_consecutive_bullish_days"
-    -- I used "z" to avoid text wrapping in the terminal due to long column names
-FROM
-    daily_ohlc_recombined t8;
+
+
 
 -- notable examples to look out for:
 -- day="1996-01-31" is 3 consecutive bullish days (i.e., stock price increasing)
 -- day="1996-01-08" is 3 consecutive bearish days (i.e., stock price decreasing)
 --
---  we can use the above query result (let's call it t9) and perform
--- `INNER JOIN t9.day = xxx_pattern.day`
+--  we can use the above query result (let's call it streaks) and perform
+-- `INNER JOIN streaks.day = xxx_pattern.day`
 -- to find the "number_of_consecutive_bullish_days" for the xxx_candlestick pattern
+
+SELECT 
+    'Engulfing Bullish' AS pattern_name,
+    COUNT(*) AS pattern_count,
+    AVG(streaks.z - 1) AS avg_bullish_days_after,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 1 THEN 1 ELSE 0 END
+    ) AS reliability_1day,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 2 THEN 1 ELSE 0 END
+    ) AS reliability_2days,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 3 THEN 1 ELSE 0 END
+    ) AS reliability_3days
+FROM 
+    engulfing_bullish_patterns p
+    INNER JOIN streaks ON p.day = streaks.day
+UNION ALL
+SELECT 
+    'Morning Star' AS pattern_name,
+    COUNT(*) AS pattern_count,
+    AVG(streaks.z - 1) AS avg_bullish_days_after,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 1 THEN 1 ELSE 0 END
+    ) AS reliability_1day,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 2 THEN 1 ELSE 0 END
+    ) AS reliability_2days,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 3 THEN 1 ELSE 0 END
+    ) AS reliability_3days
+FROM 
+    morning_star_patterns p
+    INNER JOIN streaks ON p.day = streaks.day
+UNION ALL
+SELECT 
+    'Piercing Line' AS pattern_name,
+    COUNT(*) AS pattern_count,
+    AVG(streaks.z - 1) AS avg_bullish_days_after,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 1 THEN 1 ELSE 0 END
+    ) AS reliability_1day,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 2 THEN 1 ELSE 0 END
+    ) AS reliability_2days,
+    AVG(
+        CASE WHEN (streaks.z - 1) >= 3 THEN 1 ELSE 0 END
+    ) AS reliability_3days
+FROM 
+    piercing_line_patterns p
+    INNER JOIN streaks ON p.day = streaks.day;
+
