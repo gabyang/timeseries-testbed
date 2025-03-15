@@ -6,7 +6,9 @@ CREATE TABLE daily_ohlc_optimised (
     close INT NOT NULL,
     volume INT NOT NULL
 );
-SELECT create_hypertable('daily_ohlc_optimised', 'day', chunk_time_interval => INTERVAL '30 year');
+
+SELECT create_hypertable('daily_ohlc_optimised', 'day', chunk_time_interval => INTERVAL '99 year');
+
 INSERT INTO daily_ohlc_optimised (day, open, high, low, close, volume)
 SELECT 
     day,
@@ -16,3 +18,11 @@ SELECT
     FLOOR(close * 100)::INT AS close,
     volume::INT AS volume
 FROM daily_ohlc;
+
+
+-- `daily_ohlc_optimised` should only have one chunk
+
+-- check using either this:
+select show_chunks('daily_ohlc_optimised');
+-- or this:
+SELECT * FROM timescaledb_information.hypertables;

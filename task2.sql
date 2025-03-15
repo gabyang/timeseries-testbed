@@ -1,12 +1,13 @@
 -- Task 2 
 -- Find Engulfing Bullish pattern
-INSERT INTO engulfing_bullish_patterns (day, open, high, low, close, volume)
+-- INSERT INTO engulfing_bullish_patterns (day, open, high, low, close, volume)
 SELECT day, open, high, low, close, volume
 FROM (
     SELECT *,
            LAG(open) OVER (ORDER BY day) AS prev_open,
            LAG(close) OVER (ORDER BY day) AS prev_close
     FROM daily_ohlc
+    -- FROM daily_ohlc_optimised
 ) AS sub
 WHERE prev_close < prev_open  -- Previous day is bearish
   AND close > open            -- Current day is bullish
@@ -15,7 +16,7 @@ WHERE prev_close < prev_open  -- Previous day is bearish
 
 
 -- Find Piercing Line pattern
-INSERT INTO piercing_line_patterns (day, open, high, low, close, volume)
+-- INSERT INTO piercing_line_patterns (day, open, high, low, close, volume)
 SELECT day, open, high, low, close, volume
 FROM (
     SELECT *,
@@ -23,6 +24,7 @@ FROM (
            LAG(close) OVER (ORDER BY day) AS prev_close,
            LAG(low) OVER (ORDER BY day) AS prev_low
     FROM daily_ohlc
+    -- FROM daily_ohlc_optimised
 ) AS sub
 WHERE prev_close < prev_open  -- Previous day is bearish
   AND close > open            -- Current day is bullish
@@ -31,7 +33,7 @@ WHERE prev_close < prev_open  -- Previous day is bearish
 
 
 -- Find Morning Star pattern
-INSERT INTO morning_star_patterns (day, open, high, low, close, volume)
+-- INSERT INTO morning_star_patterns (day, open, high, low, close, volume)
 SELECT day, open, high, low, close, volume
 FROM (
     SELECT *,
@@ -40,6 +42,7 @@ FROM (
         LAG(open, 2) OVER (ORDER BY day) AS d0_open,
         LAG(close, 2) OVER (ORDER BY day) AS d0_close
     FROM daily_ohlc
+    -- FROM daily_ohlc_optimised
 ) d2
 WHERE 
     d0_close < d0_open  -- First day is bearish
@@ -53,4 +56,4 @@ WHERE
 -- at predicting the future stock prices
 
 -- For implementation of "number of continuously bullish days following each pattern",
--- see `number_of_consecutive_bullish_days.sql`
+-- see `task2_number_of_consecutive_bullish_days.sql`

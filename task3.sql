@@ -1,13 +1,14 @@
 -- Task 3
 
 -- Find Engulfing bearish pattern (simply the opposite of Engulfing bullish pattern)
-INSERT INTO engulfing_bearish_patterns (day, open, high, low, close, volume)
+-- INSERT INTO engulfing_bearish_patterns (day, open, high, low, close, volume)
 SELECT day, open, high, low, close, volume
 FROM (
     SELECT *,
            LAG(open) OVER (ORDER BY day) AS prev_open,
            LAG(close) OVER (ORDER BY day) AS prev_close
     FROM daily_ohlc
+    -- FROM daily_ohlc_optimised
 ) AS sub
 WHERE prev_close > prev_open
   AND close < open
@@ -15,7 +16,7 @@ WHERE prev_close > prev_open
   AND close < prev_open;
 
 -- Find Evening star pattern (simply the opposite of morning star pattern)
-INSERT INTO evening_star_patterns (day, open, high, low, close, volume)
+-- INSERT INTO evening_star_patterns (day, open, high, low, close, volume)
 SELECT day, open, high, low, close, volume
 FROM (
     SELECT *,
@@ -24,6 +25,7 @@ FROM (
         LAG(open, 2) OVER (ORDER BY day) AS d0_open,
         LAG(close, 2) OVER (ORDER BY day) AS d0_close
     FROM daily_ohlc
+    -- FROM daily_ohlc_optimised
 ) d2
 WHERE 
     d0_close > d0_open
@@ -45,6 +47,7 @@ FROM (
         LAG(open, 2) OVER (ORDER BY day) AS prev2_open,
         LAG(close, 2) OVER (ORDER BY day) AS prev2_close
     FROM daily_ohlc
+    -- FROM daily_ohlc_optimised
 ) t
 WHERE 
     prev2_close > prev2_open  -- First day is bullish

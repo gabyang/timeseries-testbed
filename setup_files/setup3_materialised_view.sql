@@ -28,5 +28,6 @@ SELECT
     LAG(low, 4) OVER (ORDER BY day) AS prev4_low, 
 	LAG(volume, 4) OVER (ORDER BY day) AS prev4_volume
 FROM 
-    daily_ohlc
+    daily_ohlc_optimised
+    -- or daily_ohlc
 ORDER BY day;
